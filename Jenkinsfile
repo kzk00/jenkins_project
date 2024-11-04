@@ -2,30 +2,34 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
-        PYTHONPATH = "${env.WORKSPACE}"  // Add this line
+        PYTHON_PATH = 'C:\\Users\\kobei\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'  // Replace with your Python path
     }
     stages {
         stage('Setup') {
             steps {
                 script {
+                    // Create a virtual environment if it doesn't exist
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                        bat "python -m venv ${VIRTUAL_ENV}"
+                        bat "${env.PYTHON_PATH} -m venv ${VIRTUAL_ENV}"
                     }
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
+                    // Activate the virtual environment and install requirements
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m pip install -r requirements.txt"
                 }
             }
         }
         stage('Lint') {
             steps {
                 script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && flake8 app.py"
+                    // Run flake8 in the virtual environment
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m flake8 app.py"
                 }
             }
         }
         stage('Test') {
             steps {
                 script {
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && pytest"
+                    // Run pytest in the virtual environment
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m pytest"
                 }
             }
         }
