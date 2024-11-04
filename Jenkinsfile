@@ -2,17 +2,15 @@ pipeline {
     agent any
     environment {
         VIRTUAL_ENV = 'venv'
-        PYTHON_PATH = 'C:\\Users\\kobei\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'  // Replace with your Python path
+        PYTHON_PATH = 'C:\\Users\\kobei\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'  // Adjust the path as needed
     }
     stages {
         stage('Setup') {
             steps {
                 script {
-                    // Create a virtual environment if it doesn't exist
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
                         bat "${env.PYTHON_PATH} -m venv ${VIRTUAL_ENV}"
                     }
-                    // Activate the virtual environment and install requirements
                     bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m pip install -r requirements.txt"
                 }
             }
@@ -20,7 +18,6 @@ pipeline {
         stage('Lint') {
             steps {
                 script {
-                    // Run flake8 in the virtual environment
                     bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m flake8 app.py"
                 }
             }
@@ -28,8 +25,23 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Run pytest in the virtual environment
                     bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m pytest"
+                }
+            }
+        }
+        stage('Coverage') {
+            steps {
+                script {
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m coverage run -m pytest"
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m coverage report"
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m coverage html"
+                }
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                script {
+                    bat "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate && ${env.PYTHON_PATH} -m bandit -r ."
                 }
             }
         }
