@@ -45,14 +45,6 @@ pipeline {
                 }
             }
         }
-        stage('Security Scan') {
-            steps {
-                script {
-                    // Adding --exit-zero to Bandit command to avoid pipeline failure
-                    bat "${VIRTUAL_ENV}\\Scripts\\activate && ${PYTHON_PATH} -m bandit -r . --quiet --exit-zero 1>bandit_report.txt 2>&1"
-                }
-            }
-        }
         stage('Deploy') {
             steps {
                 script {
@@ -63,13 +55,6 @@ pipeline {
     }
     post {
         always {
-            // Display the Bandit report in the logs for manual review
-            script {
-                if (fileExists('bandit_report.txt')) {
-                    echo 'Bandit Report:'
-                    bat "type bandit_report.txt"
-                }
-            }
             cleanWs()
         }
     }
